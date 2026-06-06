@@ -32,22 +32,46 @@ app.get("/health", async (req, res) => {
 
 
 
-// Added [1] here so Node.js can correctly match the executed file
 if (process.env.NODE_ENV !== 'test') {
   (async () => {
     try {
-      await connectProducer();
-      await startOrderConsumer();
-      console.log("Order Service Kafka ready");
+      // Only connect Kafka if broker is configured
+      if (process.env.KAFKA_BROKER) {
+        await connectProducer();
+        await startOrderConsumer();
+        console.log("Order Service Kafka ready");
+      } else {
+        console.log("No KAFKA_BROKER set, skipping Kafka connection");
+      }
+
       app.listen(PORT, () => {
         console.log(`🚀 Server listening on http://localhost:${PORT}`);
       });
     } catch (err) {
-      console.error("Order Service Kafka startup failed:", err);
+      console.error("Order Service startup failed:", err);
       process.exit(1);
     }
   })();
 }
+
+
+
+// Added [1] here so Node.js can correctly match the executed file
+// if (process.env.NODE_ENV !== 'test') {
+//   (async () => {
+//     try {
+//       await connectProducer();
+//       await startOrderConsumer();
+//       console.log("Order Service Kafka ready");
+//       app.listen(PORT, () => {
+//         console.log(`🚀 Server listening on http://localhost:${PORT}`);
+//       });
+//     } catch (err) {
+//       console.error("Order Service Kafka startup failed:", err);
+//       process.exit(1);
+//     }
+//   })();
+// }
 
 
 // (async () => {
