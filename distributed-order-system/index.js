@@ -18,7 +18,7 @@ const PORT = 7070;
 app.use("/order", orderRoutes);
 app.use("/product", productRoutes);
 
-
+export default app;
 
 app.get("/health", async (req, res) => {
   try {
@@ -32,19 +32,37 @@ app.get("/health", async (req, res) => {
 
 
 
-(async () => {
-  try {
-    await connectProducer();
-    await startOrderConsumer();
-    console.log("Order Service Kafka ready");
-    app.listen(7070, () => {
-      console.log("🚀 Server listening on http://localhost:7070");
-    });
+// Added [1] here so Node.js can correctly match the executed file
+if (process.env.NODE_ENV !== 'test') {
+  (async () => {
+    try {
+      await connectProducer();
+      await startOrderConsumer();
+      console.log("Order Service Kafka ready");
+      app.listen(PORT, () => {
+        console.log(`🚀 Server listening on http://localhost:${PORT}`);
+      });
+    } catch (err) {
+      console.error("Order Service Kafka startup failed:", err);
+      process.exit(1);
+    }
+  })();
+}
 
-  } catch (err) {
-    console.error("Order Service Kafka startup failed:", err);
-  }
-})();
+
+// (async () => {
+//   try {
+//     await connectProducer();
+//     await startOrderConsumer();
+//     console.log("Order Service Kafka ready");
+//     app.listen(7070, () => {
+//       console.log("🚀 Server listening on http://localhost:7070");
+//     });
+
+//   } catch (err) {
+//     console.error("Order Service Kafka startup failed:", err);
+//   }
+// })();
 
 
 
