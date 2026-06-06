@@ -1,0 +1,39 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      # ---- TEST ORDER SERVICE ----
+      - name: Install & Test Order Service
+        working-directory: ./distributed-order-system
+        run: |
+          pnpm install
+          pnpm test
+
+      # ---- TEST PAYMENT SERVICE ----
+      - name: Install & Test Payment Service
+        working-directory: ./payment-service
+        run: |
+          pnpm install
+          pnpm test
+
+      # ---- DEPLOY (only if all tests pass) ----
+      - name: Deploy Order Service to Render
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_ORDER }}
