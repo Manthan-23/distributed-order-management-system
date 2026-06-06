@@ -3,7 +3,8 @@ import pool from "../connectDB.js";
 
 const kafka = new Kafka({
   clientId: "order-service-consumer",
-  brokers: ["localhost:9092"],
+  // brokers: ["localhost:9092"],
+  brokers: [process.env.KAFKA_BROKER || "localhost:9092"],
 });
 
 const consumer = kafka.consumer({
